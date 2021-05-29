@@ -82,7 +82,7 @@ for i in range(0, detections.shape[2]):
         # the label for the mask type and the color
         # purple for disposable respirator, blue for surgical mask
         label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
-        color = (230, 230, 250) if label == "Mask" else (250, 238, 68)
+        color = (194, 27, 228) if label == "Respirator" else (250, 238, 68)
 
         # include the probability in the label
         label = "{}: {:.2f}%".format(label, max(respirator, surgical_mask) * 100)
