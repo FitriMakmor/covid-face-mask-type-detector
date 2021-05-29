@@ -38,7 +38,7 @@ INIT_LR = 1e-4  # The initial learning rate
 EPOCHS = 20  # Number of Epochs
 BS = 32  # Batch Size
 
-# grab the list of images in our dataset directory, then initialize
+# grab the list of images in the dataset directory, then initialize
 # the list of data (i.e., images) and class images
 print("[INFO] loading images...")
 imagePaths = list(paths.list_images(args["dataset"]))
@@ -88,6 +88,7 @@ aug = ImageDataGenerator(
 # left off
 baseModel = MobileNetV2(weights="imagenet", include_top=False,
 	input_tensor=Input(shape=(224, 224, 3)))
+
 # construct the head of the model that will be placed on top of the
 # the base model
 headModel = baseModel.output
@@ -96,15 +97,17 @@ headModel = Flatten(name="flatten")(headModel)
 headModel = Dense(128, activation="relu")(headModel)
 headModel = Dropout(0.5)(headModel)
 headModel = Dense(2, activation="softmax")(headModel)
+
 # place the head FC model on top of the base model (this will become
 # the actual model we will train)
 model = Model(inputs=baseModel.input, outputs=headModel)
+
 # loop over all layers in the base model and freeze them so they will
 # *not* be updated during the first training process
 for layer in baseModel.layers:
 	layer.trainable = False
 
-# compile our model
+# compile the model
 print("[INFO] compiling model...")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
@@ -121,14 +124,17 @@ H = model.fit(
 # make predictions on the testing set
 print("[INFO] evaluating network...")
 predIdxs = model.predict(testX, batch_size=BS)
-# for each image in the testing set we need to find the index of the
-# label with corresponding largest predicted probability
+
+# find the index of the label with corresponding largest predicted probability
+# for each image in the testing set
 predIdxs = np.argmax(predIdxs, axis=1)
+
 # show a nicely formatted classification report
 print(classification_report(testY.argmax(axis=1), predIdxs,
 	target_names=lb.classes_))
+
 # serialize the model to disk
-print("[INFO] saving mask detector model...")
+print("[INFO] saving mask type detector model...")
 model.save(args["model"], save_format="h5")
 
 # plot the training loss and accuracy

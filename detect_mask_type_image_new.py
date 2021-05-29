@@ -22,13 +22,15 @@ ap.add_argument("-c", "--confidence", type=float, default=0.5,
 args = vars(ap.parse_args())
 
 # load our serialized face detector model from disk
+# Uses a Caffe-based deep learning face detector
 print("[INFO] loading face detector model...")
 prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
 weightsPath = os.path.sep.join([args["face"],
                                 "res10_300x300_ssd_iter_140000.caffemodel"])
 net = cv2.dnn.readNet(prototxtPath, weightsPath)
-# load the face mask detector model from disk
-print("[INFO] loading face mask detector model...")
+
+# load the face mask type detector model from disk
+print("[INFO] loading face mask type detector model...")
 model = load_model(args["model"])
 
 # load the input image from disk, clone it, and grab the image spatial
@@ -39,6 +41,7 @@ orig = image.copy()
 # construct a blob from the image
 blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300),
                              (104.0, 177.0, 123.0))
+
 # pass the blob through the network and obtain the face detections
 print("[INFO] computing face detections...")
 net.setInput(blob)
@@ -70,19 +73,22 @@ for i in range(0, detections.shape[2]):
         face = img_to_array(face)
         face = preprocess_input(face)
         face = np.expand_dims(face, axis=0)
+
         # pass the face through the model to determine if the face
         # has a mask or not
         (respirator, surgical_mask) = model.predict(face)[0]
 
-        # determine the class label and color we'll use to draw
-        # the bounding box and text
+        # Based on the predictor results, add a bounding box with
+        # the label for the mask type and the color
+        # purple for disposable respirator, blue for surgical mask
         label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
         color = (230, 230, 250) if label == "Mask" else (250, 238, 68)
 
         # include the probability in the label
         label = "{}: {:.2f}%".format(label, max(respirator, surgical_mask) * 100)
-        # display the label and bounding box rectangle on the output
-        # frame
+
+        # display the label and the bounding box rectangle on
+        # the output frame
         cv2.putText(image, label, (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
         cv2.rectangle(image, (startX, startY), (endX, endY), color, 2)
