@@ -72,12 +72,12 @@ for i in range(0, detections.shape[2]):
         face = np.expand_dims(face, axis=0)
         # pass the face through the model to determine if the face
         # has a mask or not
-        (respirator, surgical_mask) = model.predict(face)[0] # Renamed withoutMask to respirator !!!
+        (respirator, surgical_mask) = model.predict(face)[0]
 
         # determine the class label and color we'll use to draw
         # the bounding box and text
-        label = "Respirator" if respirator > surgical_mask else "Surgical Mask" # Renamed Mask to Respirator and No Mask to Surgical Mask !!!
-        color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+        label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
+        color = (230, 230, 250) if label == "Mask" else (250, 238, 68)
 
         # include the probability in the label
         label = "{}: {:.2f}%".format(label, max(respirator, surgical_mask) * 100)
@@ -86,6 +86,12 @@ for i in range(0, detections.shape[2]):
         cv2.putText(image, label, (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
         cv2.rectangle(image, (startX, startY), (endX, endY), color, 2)
+
+# Optionally resize the image
+# image = cv2.resize(image, (600, 600))
+
+# Optionally save the image to a file path
+cv2.imwrite("D:\Files\Documents\Courses\Sem 6\Soft Computing\Saved Output Images\output_image.jpg", image)
 
 # show the output image
 cv2.imshow("Output", image)
