@@ -107,15 +107,15 @@ while True:
     for (box, pred) in zip(locs, preds):
         # unpack the bounding box and predictions
         (startX, startY, endX, endY) = box
-        (surgical_mask, respirator) = pred
+        (respirator, surgical_mask) = pred
 
         # determine the class label and color we'll use to draw
         # the bounding box and text
-        label = "Surgical Mask" if surgical_mask > respirator else "Respirator"
-        color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+        label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
+        color = (194, 27, 228) if label == "Respirator" else (250, 238, 68)
 
         # include the probability in the label
-        label = "{}: {:.2f}%".format(label, max(surgical_mask, respirator) * 100)
+        label = "{}: {:.2f}%".format(label, max(respirator, surgical_mask) * 100)
 
         # display the label and bounding box rectangle on the output
         # frame
