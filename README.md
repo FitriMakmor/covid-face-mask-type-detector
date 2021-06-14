@@ -8,4 +8,4 @@ Dataset consists of images originated from:
 > - https://github.com/cabani/MaskedFace-Net
 > - https://github.com/AIZOOTech/FaceMaskDetection
 
-Dataset is hidden from public view due to a copyright agreement regarding the FMR-DB data source. Only the course evaluator will have access to it.
+Dataset is hidden from public view due to a copyright agreement regarding the FMR-DB data source. Only the course evaluator will have access to it once requested.
