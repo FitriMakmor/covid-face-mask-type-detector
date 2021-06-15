@@ -29,61 +29,70 @@ import os
 
 
 def detect_and_predict_mask_type(frame, faceNet, maskNet):
-    # retrieves the input video frame's spatial dimensions
+    # Retrieves the input video frame's spatial dimensions
     # and then creates a blob from the video frame.
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300),
                                  (104.0, 177.0, 123.0))
-    # pass the blob through the network and obtain the face detections
+    # Passes the blob through the face detector neural network and obtain the face detections
     faceNet.setInput(blob)
     detections = faceNet.forward()
-    # initialize our list of faces, their corresponding locations,
-    # and the list of predictions from our face mask network
+
+    # Initializes the list variables storing the faces, their locations in the video frame
+    # and the list of predictions from the face mask type neural network model
     faces = []
     locs = []
     preds = []
 
-    # loop over the detections
+    # Loops over the face detections
     for i in range(0, detections.shape[2]):
-        # extract the confidence (i.e., probability) associated with
+
+        # Extracts the confidence (i.e., probability) associated with
         # the detection
         confidence = detections[0, 0, i, 2]
-        # filter out weak detections by ensuring the confidence is
-        # greater than the minimum confidence
+
+        # Checks if the face detection is higher than the minimum confidence
+        # specified in the argument to filter out weak detections
         if confidence > args["confidence"]:
-            # compute the (x, y)-coordinates of the bounding box for
-            # the object
+
+            # Computes the bounding box values for the particular face
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
-            # ensure the bounding boxes fall within the dimensions of
-            # the frame
+
+            # Ensures that the bounding boxes are within the
+            # frame dimension size
             (startX, startY) = (max(0, startX), max(0, startY))
             (endX, endY) = (min(w - 1, endX), min(h - 1, endY))
 
-            # extract the face ROI, convert it from BGR to RGB channel
-            # ordering, resize it to 224x224, and preprocess it
+            # Extracts the face Regions Of Interest (ROI), converts it from BGR to RGB channel
+            # ordering, resizes it to 224x224, and preprocesses it
             face = frame[startY:endY, startX:endX]
             face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
             face = cv2.resize(face, (224, 224))
             face = img_to_array(face)
             face = preprocess_input(face)
-            # add the face and bounding boxes to their respective
-            # lists
+
+            # Adds the face and its bounding boxes to the
+            # lists initialized earlier
             faces.append(face)
             locs.append((startX, startY, endX, endY))
-        # only make a predictions if at least one face was detected
+
+        # Checks if there is at least one face in the detection
         if len(faces) > 0:
-            # for faster inference we'll make batch predictions on *all*
-            # faces at the same time rather than one-by-one predictions
-            # in the above `for` loop
+            # Executes Batch Predictions on ALL the faces at the same time
+            # for faster inferences compared to doing the predictions one-by-one
+            # in the `for` loop above
+
             faces = np.array(faces, dtype="float32")
             preds = maskNet.predict(faces, batch_size=32)
-        # return a 2-tuple of the face locations and their corresponding
-        # locations
+
+        # Returns the face locations and their corresponding
+        # predictions in the form of a 2-tuple
         return (locs, preds)
 
 
-# construct the argument parser and parse the arguments
+# Specify the required arguments when running the program as well as
+# its default value when no argument is given
 ap = argparse.ArgumentParser()
 ap.add_argument("-f", "--face", type=str,
                 default="face_detector",
@@ -95,13 +104,15 @@ ap.add_argument("-c", "--confidence", type=float, default=0.5,
                 help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
 
-# load our serialized face detector model from disk
+# Loads the face detector model which
+# uses a Caffe-based deep learning face detector
 print("[INFO] loading face detector model...")
 prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
 weightsPath = os.path.sep.join([args["face"],
                                 "res10_300x300_ssd_iter_140000.caffemodel"])
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
-# load the face mask detector model from disk
+
+# Loads the Face Mask Type Detector (FMTD) model from disk
 print("[INFO] loading face mask type detector model...")
 maskNet = load_model(args["model"])
 # initialize the video stream and allow the camera sensor to warm up
@@ -109,44 +120,49 @@ print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
 
-# loop over the frames from the video stream
+# Loops over the the video frames from the real-time video stream
 while True:
-    # grab the frame from the threaded video stream and resize it
+
+    # Grabs the video frame from the threaded video stream and resizes it
     # to have a maximum width of 400 pixels
     frame = vs.read()
     frame = imutils.resize(frame, width=400)
-    # detect faces in the frame and determine if they are wearing a
-    # surgical mask or a respirator
 
+    # Detects the faces in the frame and determine if they are wearing a
+    # surgical mask or a respirator
     (locs, preds) = detect_and_predict_mask_type(frame, faceNet, maskNet)
-    # loop over the detected face locations and their corresponding
+
+    # Loops over the detected face locations and their corresponding
     # locations
     for (box, pred) in zip(locs, preds):
-        # unpack the bounding box and predictions
+
+        # Unpacks the bounding box and the associated predictions
         (startX, startY, endX, endY) = box
         (respirator, surgical_mask) = pred
 
-        # determine the class label and color we'll use to draw
-        # the bounding box and text
+        # Based on the results of the FMTD
+        # adds a bounding box containing the label for the mask type and the color,
+        # where purple signifies a disposable respirator, and blue for surgical mask
         label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
         color = (194, 27, 228) if label == "Respirator" else (250, 238, 68)
 
-        # include the probability in the label
+        # Includes the probability of the prediction in the label
         label = "{}: {:.2f}%".format(label, max(respirator, surgical_mask) * 100)
 
-        # display the label and bounding box rectangle on the output
-        # frame
+        # Displays the label and the bounding box rectangles on
+        # the output frame
         cv2.putText(frame, label, (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
         cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
 
-    # show the output frame
+    # Shows the output frame containing the bounding box and the labels
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
-    # if the `q` key was pressed, break from the loop
+
+    # Breaks the loop when the `q` key is pressed
     if key == ord("q"):
         break
 
-# do a bit of cleanup
+# Performs cleanup before finally stopping the program
 cv2.destroyAllWindows()
 vs.stop()

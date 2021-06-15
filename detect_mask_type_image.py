@@ -69,6 +69,7 @@ detections = net.forward()
 
 # Loops over the detections
 for i in range(0, detections.shape[2]):
+
     # Extracts the confidence (i.e., probability) associated with
     # the detection
     confidence = detections[0, 0, i, 2]
@@ -95,11 +96,11 @@ for i in range(0, detections.shape[2]):
         face = preprocess_input(face)
         face = np.expand_dims(face, axis=0)
 
-        # Passes the pre-processed face to the face mask type detector model
+        # Passes the pre-processed face to the FMTD model
         # to determine if it is wearing a respirator or a surgical mask
         (respirator, surgical_mask) = model.predict(face)[0]
 
-        # Based on the results of the face mask type detector
+        # Based on the results of the FMTD
         # adds a bounding box containing the label for the mask type and the color,
         # where purple signifies a disposable respirator, and blue for surgical mask
         label = "Respirator" if respirator > surgical_mask else "Surgical Mask"
