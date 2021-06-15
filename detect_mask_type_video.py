@@ -1,4 +1,21 @@
-# import the necessary packages
+# FACE MASK TYPE CLASSIFIER
+# Author: Nur Muhammad Fitri Bin Makmor
+
+# Description:
+# Activates the configured default webcam and loop face mask type detection
+# over the frames from the video stream.
+
+# References:
+#
+# TITLE: COVID-19: Face Mask Detector with OpenCV, Keras/TensorFlow, and Deep Learning
+# CONTRIBUTOR(S): Adrian Rosebrock (4th May 2020)
+# LINK: https://www.pyimagesearch.com/2020/05/04/covid-19-face-mask-detector-with-opencv-keras-tensorflow-and-deep-learning/
+#
+# TITLE: Covid-19 Face Mask Detection Using TensorFlow, Keras and OpenCV
+# CONTRIBUTOR(S): Arjya Das, Mohammad Wasif Ansari, and Rohini Basak (5th February 2021)
+# LINK: https://ieeexplore.ieee.org/document/9342585
+
+# Imports the required packages for the program
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
@@ -12,8 +29,8 @@ import os
 
 
 def detect_and_predict_mask_type(frame, faceNet, maskNet):
-    # grab the dimensions of the frame and then construct a blob
-    # from it
+    # retrieves the input video frame's spatial dimensions
+    # and then creates a blob from the video frame.
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300),
                                  (104.0, 177.0, 123.0))
