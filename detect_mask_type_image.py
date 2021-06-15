@@ -2,8 +2,8 @@
 # Author: Nur Muhammad Fitri Bin Makmor
 
 # Description:
-# Activates the configured default webcam and loop face mask type detection
-# over the frames from the video stream.
+# Retrieves an input image specified as an argument when executing the program
+# and performs the Face Mask Type detection using the trained neural network model
 
 # References:
 #

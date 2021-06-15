@@ -1,4 +1,24 @@
-# import the necessary packages
+# FACE MASK TYPE CLASSIFIER
+# Author: Nur Muhammad Fitri Bin Makmor
+
+# Description:
+# Trains the Face Mask Type Detector (FMTD) model using the supplied dataset
+# and plots a graph displaying its training accuracy and validation accuracy
+# as well as its training loss and validation loss
+
+# References:
+#
+# TITLE: COVID-19: Face Mask Detector with OpenCV, Keras/TensorFlow, and Deep Learning
+# CONTRIBUTOR(S): Adrian Rosebrock (4th May 2020)
+# LINK: https://www.pyimagesearch.com/2020/05/04/covid-19-face-mask-detector-with-opencv-keras-tensorflow-and-deep-learning/
+#
+# TITLE: Covid-19 Face Mask Detection Using TensorFlow, Keras and OpenCV
+# CONTRIBUTOR(S): Arjya Das, Mohammad Wasif Ansari, and Rohini Basak (5th February 2021)
+# LINK: https://ieeexplore.ieee.org/document/9342585
+
+# ====================================================================================== #
+
+# Imports the required packages for the program
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.layers import AveragePooling2D
