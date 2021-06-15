@@ -91,7 +91,7 @@ def detect_and_predict_mask_type(frame, faceNet, maskNet):
         return (locs, preds)
 
 
-# Specify the required arguments when running the program as well as
+# Specifies the required arguments when running the program as well as
 # its default value when no argument is given
 ap = argparse.ArgumentParser()
 ap.add_argument("-f", "--face", type=str,

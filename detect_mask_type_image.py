@@ -26,7 +26,7 @@ import argparse
 import cv2
 import os
 
-# Specify the required arguments when running the program as well as
+# Specifies the required arguments when running the program as well as
 # its default value when no argument is given
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True,
@@ -49,7 +49,7 @@ weightsPath = os.path.sep.join([args["face"],
                                 "res10_300x300_ssd_iter_140000.caffemodel"])
 net = cv2.dnn.readNet(prototxtPath, weightsPath)
 
-# Loads the face mask type detector model from disk
+# Loads the Face Mask Type Detector (FMTD) model from disk
 print("[INFO] loading face mask type detector model...")
 model = load_model(args["model"])
 
